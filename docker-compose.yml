@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: beacon-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: beacon-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: beacon_health
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  ingestor-service:
+    build:
+      context: ./services/ingestor-service
+      dockerfile: Dockerfile
+    container_name: beacon-ingestor
+    ports:
+      - "3000:3000"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/beacon-logs
+      PORT: 3000
+    depends_on:
+      - mongo
+
+  health-service:
+    build:
+      context: ./services/health-service
+      dockerfile: Dockerfile
+    container_name: beacon-health
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: beacon_health
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+volumes:
+  mongo-data:
+  postgres-data:
