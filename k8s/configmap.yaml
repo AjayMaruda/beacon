@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beacon-config
+data:
+  MONGODB_URI: mongodb://beacon-mongo:27017/beacon-logs
+  PORT_INGESTOR: "3000"
+  PORT_HEALTH: "3001"
+  DB_HOST: beacon-postgres
+  DB_PORT: "5432"
+  DB_NAME: beacon_health
+  DB_USER: postgres
